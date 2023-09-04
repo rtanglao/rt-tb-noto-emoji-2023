@@ -15,9 +15,10 @@ MACOS_EMOJI = '🍎'.freeze
 LINUX_EMOJI = '🐧'.freeze
 WINDOWS_EMOJI = '🪟'.freeze
 UNKNOWN_EMOJI = '❓'.freeze
+GMAIL_EMOJI = '📮'.freeze
+MICROSOFT_EMAIL_EMOJI = '📩'.freeze
 
 def get_os_emoji(content, logger)
-  logger.debug content
   case content
   when /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|snow leopard|leopard|jaguar|monterey|mavericks|sonoma|sierra|el capitan|mojave|catalina|big sur|yosemite)/i
     "#{MACOS_EMOJI} #{Regexp.last_match(1)}"
@@ -32,6 +33,19 @@ def get_os_emoji(content, logger)
   end
 end
 
+def get_email_emoji(content, logger)
+  case content
+  when /(gmail|google mail|googlemail)/i
+    "#{GMAIL_EMOJI} #{Regexp.last_match(1)}"
+  when /(live.com|msn|ms365|outlook|office365|office 365|\
+    hotmail|livemail|passport|microsoft365|microsoft 365|\
+    o365|ms 365|verizon|microsoft mail|microsoftmail|\
+    timewarner|twc|godaddy)/i
+    "#{MICROSOFT_EMAIL_EMOJI} #{Regexp.last_match(1)}"
+  else 
+    UNKNOWN_EMOJI
+  end
+end
 if ARGV.length < 2
   puts "usage: #{$PROGRAM_NAME} <questions_CSV_file> <answers_CSV_file>"
   exit
@@ -50,12 +64,15 @@ all_questions.each do |q|
   content += " #{q['tags']}"
   id = q['id']
   logger.debug "id: #{id}"
-  emoji = get_os_emoji(content, logger)
+  os_emoji = get_os_emoji(content, logger)
+  email_emoji = get_email_emoji(content, logger)
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(\
     "pango:<span font='Noto Color Emoji'>\
   <span foreground='deeppink'><b>id:</b></span>#{id} \r\
-  <b>OS:</b>#{emoji}</span>"
+  <b>OS:</b>#{os_emoji}\r\
+  <span foreground='darkblue'><b>email:</b>#{email_emoji}</span>\r\
+  </span>"
   ).first
   filename = format(
     fn_str,
