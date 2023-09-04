@@ -24,7 +24,8 @@ def get_os_emoji(content, logger)
   when /(linux|ubuntu|redhat|debian|bsd)/i
     "#{LINUX_EMOJI} #{Regexp.last_match(1)}"
   when /(windows-7|windows-8|windows-10|windows-11|windows 10|\
-    win 10|windows 11|win 11|windows 7|win 7|windows 8|win 8)/i
+    win 10|windows 11|win 11|windows 7|win 7|windows 8|win 8|\
+    win7|win10|win8|win11)/i
     "#{WINDOWS_EMOJI} #{Regexp.last_match(1)}"
   else
     UNKNOWN_EMOJI
