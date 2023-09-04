@@ -53,7 +53,7 @@ all_questions.each do |q|
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(\
     "pango:<span font='Noto Color Emoji'>\
-  <b>id:</b>#{id} \r\
+  <span foreground='pink'><b>id:</b></span>#{id} \r\
   <b>OS:</b>#{emoji}</span>"
   ).first
   filename = format(
