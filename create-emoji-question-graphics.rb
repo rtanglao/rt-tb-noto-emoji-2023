@@ -18,7 +18,6 @@ UNKNOWN_EMOJI = '❓'.freeze
 
 def get_os_emoji(content, logger)
   logger.debug content
-  binding.pry
   case content
   when /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|snow leopard|leopard|jaguar|monterey|mavericks|sonoma|sierra|el capitan|mojave|catalina|big sur|yosemite)/i
     "#{MACOS_EMOJI} #{Regexp.last_match(1)}"
