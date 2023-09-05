@@ -40,7 +40,9 @@ def get_email_emoji(content, logger)
   when /(live.com|msn|ms365|outlook|office365|office 365|\
     hotmail|livemail|passport|microsoft365|microsoft 365|\
     o365|ms 365|verizon|microsoft mail|microsoftmail|\
-    timewarner|twc|godaddy)/i
+    timewarner|twc|godaddy|msexchange|ms exchange|\
+    microsoft exchange|ms exchange|\
+    spectrum|time warner|roadrunner)/i
     "#{MICROSOFT_EMAIL_EMOJI} #{Regexp.last_match(1)}"
   else 
     UNKNOWN_EMOJI
