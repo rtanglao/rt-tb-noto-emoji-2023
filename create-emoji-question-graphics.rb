@@ -17,6 +17,8 @@ WINDOWS_EMOJI = '🪟'.freeze
 UNKNOWN_EMOJI = '❓'.freeze
 GMAIL_EMOJI = '📮'.freeze
 MICROSOFT_EMAIL_EMOJI = '📩'.freeze
+PROTONMAIL_EMOJI = '📨'.freeze
+FASTMAIL_EMOJI = '✉️'.freeze
 
 def get_os_emoji(content, logger)
   case content
@@ -44,7 +46,11 @@ def get_email_emoji(content, logger)
     microsoft exchange|ms exchange|\
     spectrum|time warner|roadrunner)/i
     "#{MICROSOFT_EMAIL_EMOJI} #{Regexp.last_match(1)}"
-  else 
+  when /(protonmail|proton.me)/i
+    "#{PROTONMAIL_EMOJI} #{Regexp.last_match(1)}"
+  when /(fastmail|fastmail.fm)/i
+    "#{FASTMAIL_EMOJI} #{Regexp.last_match(1)}"
+  else
     UNKNOWN_EMOJI
   end
 end
