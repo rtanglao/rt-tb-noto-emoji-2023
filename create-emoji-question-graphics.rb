@@ -16,10 +16,58 @@ LINUX_EMOJI = '🐧'.freeze
 WINDOWS_EMOJI = '🪟'.freeze
 UNKNOWN_EMOJI = '❓'.freeze
 GMAIL_EMOJI = '📮'.freeze
-MICROSOFT_EMAIL_EMOJI = '📩'.freeze
+MICROSOFT_EMAIL_EMOJI = '📧'.freeze
 PROTONMAIL_EMOJI = '📨'.freeze
 FASTMAIL_EMOJI = '✉️'.freeze
+KASPERSKY_EMOJI = '🇰'.freeze
+BITDEFENDER_EMOJI = '🇧'.freeze
+AVAST_EMOJI = '🅰'.freeze
+AVIRA_EMOJI = '🇦'.freeze
+ZONEALARM_EMOJI = '🇿'.freeze
+COMODO_EMOJI = '🇨'.freeze
+ESET_EMOJI = '🇪'.freeze
+FSECURE_EMOJI = '🇫'.freeze
+MALWAREBYTES_EMOJI = '🇲'.freeze
+MCAFEE_EMOJI = 'Ⓜ'.freeze
+NORTON_EMOJI = '🇳'.freeze
+MCAFEE_EMOJI = 'M'.freeze
+TRENDMICRO_EMOJI = '🇹'.freeze
+MSDEFENDER_EMOJI = '🇩'.freeze
 
+def get_antivus_emoji(content, logger)
+  case content
+  when /(kaspersky)/i
+    "#{KASPERSKY_EMOJI} #{Regexp.last_match(1)}"
+  when /(bitdefender)/i
+    "#{BITDEFENDER_EMOJI} #{Regexp.last_match(1)}"
+  when /(avast|avg)/i
+    "#{AVAST_EMOJI} #{Regexp.last_match(1)}"
+  when /(avira)/i
+    "#{AVIRA_EMOJI} #{Regexp.last_match(1)}"
+  when /(zonealarm|zone alarm|checkpoint|check point)/i
+    "#{ZONEALARM_EMOJI} #{Regexp.last_match(1)}"
+  when /(comodo)/i
+    "#{COMODO_EMOJI} #{Regexp.last_match(1)}"
+  when /(eset|nod32)/i
+    "#{ESET_EMOJI} #{Regexp.last_match(1)}"
+  when /(fsecure|f-secure|f secure)/i
+    "#{FSECURE_EMOJI} #{Regexp.last_match(1)}"
+  when /(malwarebytes)/i
+    "#{MALWAREBYTES_EMOJI} #{Regexp.last_match(1)}"
+  when /(mcafee)/i
+    "#{MCAFEE_EMOJI} #{Regexp.last_match(1)}"
+  when /(norton)/i
+    "#{NORTON_EMOJI} #{Regexp.last_match(1)}"
+  when /(sophos)/i
+    "#{SOPHOS_EMOJI} #{Regexp.last_match(1)}"
+  when /(trendmicro|titanium)/i
+    "#{TRENDMICRO_EMOJI} #{Regexp.last_match(1)}"
+  when /(defender)/i
+    "#{MSDEFENDER_EMOJI} #{Regexp.last_match(1)}"
+  else
+    UNKNOWN_EMOJI
+  end
+end
 def get_os_emoji(content, logger)
   case content
   when /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|snow leopard|leopard|jaguar|monterey|mavericks|sonoma|sierra|el capitan|mojave|catalina|big sur|yosemite)/i
@@ -74,12 +122,14 @@ all_questions.each do |q|
   logger.debug "id: #{id}"
   os_emoji = get_os_emoji(content, logger)
   email_emoji = get_email_emoji(content, logger)
+  av_emoji = get_antivus_emoji(content, logger)
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(\
     "pango:<span font='Noto Color Emoji'>\
-  <span foreground='deeppink'><b>id:</b></span>#{id} \r\
+  <span foreground='deeppink' letter_spacing='1'><b>id:</b></span>#{id} \r\
   <b>OS:</b>#{os_emoji}\r\
   <span foreground='darkblue'><b>email:</b>#{email_emoji}</span>\r\
+  <span foreground='darkred'><b>Anti-virus:</b>#{av_emoji}</span>\r\
   </span>"
   ).first
   filename = format(
