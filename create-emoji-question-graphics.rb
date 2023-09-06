@@ -33,7 +33,16 @@ NORTON_EMOJI = '🇳'.freeze
 MCAFEE_EMOJI = 'M'.freeze
 TRENDMICRO_EMOJI = '🇹'.freeze
 MSDEFENDER_EMOJI = '🇩'.freeze
+USERCHROME_EMJOI = '🛠'.freeze
 
+def get_userchrome_emoji(content, logger)
+  case content
+  when /(userchrome|usercontent)/i
+    "#{USERCHROME_EMJOI} #{Regexp.last_match(1)}"
+  else
+    UNKNOWN_EMOJI
+  end
+end
 def get_antivirus_emoji(content, logger)
   case content
   when /(kaspersky)/i
@@ -68,6 +77,7 @@ def get_antivirus_emoji(content, logger)
     UNKNOWN_EMOJI
   end
 end
+
 def get_os_emoji(content, logger)
   case content
   when /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|snow leopard|leopard|jaguar|monterey|mavericks|sonoma|sierra|el capitan|mojave|catalina|big sur|yosemite)/i
@@ -123,13 +133,15 @@ all_questions.each do |q|
   os_emoji = get_os_emoji(content, logger)
   email_emoji = get_email_emoji(content, logger)
   av_emoji = get_antivirus_emoji(content, logger)
+  userchrome_emoji = get_userchrome_emoji(content, logger)
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(\
     "pango:<span font='Noto Color Emoji'>\
-  <span foreground='deeppink' letter_spacing='1' stretch='ultracondensed'><b>id:</b></span>#{id} \r\
+  <span foreground='deeppink' letter_spacing='1' stretch='ultracondensed' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>\r\
   <b>OS:</b>#{os_emoji}\r\
   <span foreground='darkblue'><b>email:</b>#{email_emoji}</span>\r\
   <span foreground='darkred'><b>Antivirus:</b>#{av_emoji}</span>\r\
+  <span foreground='darkgreen'><b>Unsupported customization:</b>#{userchrome_emoji}</span>\r\
   </span>"
   ).first
   filename = format(
