@@ -34,7 +34,7 @@ MCAFEE_EMOJI = 'M'.freeze
 TRENDMICRO_EMOJI = '🇹'.freeze
 MSDEFENDER_EMOJI = '🇩'.freeze
 
-def get_antivus_emoji(content, logger)
+def get_antivirus_emoji(content, logger)
   case content
   when /(kaspersky)/i
     "#{KASPERSKY_EMOJI} #{Regexp.last_match(1)}"
@@ -122,14 +122,14 @@ all_questions.each do |q|
   logger.debug "id: #{id}"
   os_emoji = get_os_emoji(content, logger)
   email_emoji = get_email_emoji(content, logger)
-  av_emoji = get_antivus_emoji(content, logger)
+  av_emoji = get_antivirus_emoji(content, logger)
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(\
     "pango:<span font='Noto Color Emoji'>\
-  <span foreground='deeppink' letter_spacing='1'><b>id:</b></span>#{id} \r\
+  <span foreground='deeppink' letter_spacing='1' stretch='ultracondensed'><b>id:</b></span>#{id} \r\
   <b>OS:</b>#{os_emoji}\r\
   <span foreground='darkblue'><b>email:</b>#{email_emoji}</span>\r\
-  <span foreground='darkred'><b>Anti-virus:</b>#{av_emoji}</span>\r\
+  <span foreground='darkred'><b>Antivirus:</b>#{av_emoji}</span>\r\
   </span>"
   ).first
   filename = format(
