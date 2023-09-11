@@ -15,6 +15,15 @@ require_relative 'regexes'
 logger = Logger.new($stderr)
 logger.level = Logger::DEBUG
 
+VERTICAL = true
+HORIZONTAL = false
+
+def append_image(image_to_be_appended, image, vertical_or_horizontal)
+  image_list = Magick::ImageList.new(image_to_be_appended, image)
+  appended_images = image_list.append(vertical_or_horizontal)
+  appended_images.write(image)
+end
+
 def get_emojis_from_regex(emoji_regex, content, _logger)
   emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
   { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
@@ -34,7 +43,8 @@ end
 all_questions = CSV.read(ARGV[0], headers: true)
 all_answers = CSV.read(ARGV[1], headers: true)
 fn_str = 'tb-question-emoji-%<id>s-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d'
-fn_str += '-%<hh>2.2d-%<min>2.2d-%<ss>2.2d.png'
+fn_str += '-%<hh>2.2d-%<min>2.2d-%<ss>2.2d'
+fn_str += '-%<width>4.4dx%<height>4.4d.png'
 all_questions.each do |q|
   content = "#{q['title']} #{q['content']}"
   question_creator = q['creator']
@@ -60,9 +70,17 @@ all_questions.each do |q|
   filename = format(
     fn_str,
     id: id, yyyy: created.year, mm: created.month, dd: created.day,
-    hh: created.hour, min: created.min, ss: created.sec
+    hh: created.hour, min: created.min, ss: created.sec,
+    width: image.columns,
+    height: image.rows
   )
   image.write(filename)
   logger.debug "width: #{image.columns}"
   logger.debug "height: #{image.rows}"
+  logger.debug "filename: #{filename}"
+  # FIXME: Assume question ids are ascending and assume ids are ascending by time
+  # append image to hourly image if it exists else create hourly image
+  # If daily image isn't new, append hourly image to previous hourly images OR
+  # once a new day is reached or we reach end of questions, 
+  # create daily for previous day from previous day's hourly image.
 end
