@@ -21,10 +21,9 @@ def get_emojis_from_regex(emoji_regex, content, _logger)
 end
 
 def format_emoji_content(content, color, label)
-  "\r<span foreground='#{color}' font='Latin Modern Roman Demi'>\
-  <b>#{label}:</b></span>\
-  #{content[:emoji]}
-  <span font='Latin Modern Roman Demi'>#{content[:matching_text]}</span>"
+  str = "\r<span foreground='#{color}' font='Latin Modern Roman Demi'><b>#{label}:</b>"
+  str += "</span>#{content[:emoji]}"
+  str += "<span font='Latin Modern Roman Demi'>#{content[:matching_text]}</span>"
 end
 
 if ARGV.length < 2
@@ -46,8 +45,8 @@ all_questions.each do |q|
   id = q['id']
   logger.debug "id: #{id}"
   os_emoji_content = get_emojis_from_regex(OS_EMOJI_ARRAY, content, logger)
-  pango_str = "pango:<span font='Noto Color Emoji'>\
-  <span foreground='deeppink' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>"
+  pango_str = "pango:<span font='Noto Color Emoji'>"
+  pango_str += "<span foreground='deeppink' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>"
   pango_str += format_emoji_content(os_emoji_content, 'black', 'OS')
   email_emoji_content = get_emojis_from_regex(EMAIL_EMOJI_ARRAY, content, logger)
   pango_str += format_emoji_content(email_emoji_content, 'darkblue', 'Email')
@@ -66,5 +65,4 @@ all_questions.each do |q|
   image.write(filename)
   logger.debug "width: #{image.columns}"
   logger.debug "height: #{image.rows}"
-
 end
