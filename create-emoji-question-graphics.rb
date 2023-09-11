@@ -9,6 +9,8 @@ require 'csv'
 require 'logger'
 require 'rmagick'
 require 'pry'
+require 'facets/enumerable/find_yield'
+
 logger = Logger.new($stderr)
 logger.level = Logger::DEBUG
 MACOS_EMOJI = '🍎'.freeze
@@ -19,6 +21,7 @@ GMAIL_EMOJI = '📮'.freeze
 MICROSOFT_EMAIL_EMOJI = '📧'.freeze
 PROTONMAIL_EMOJI = '📨'.freeze
 FASTMAIL_EMOJI = '✉️'.freeze
+YAHOOEMAIL_EMOJI = '🇾'.freeze
 KASPERSKY_EMOJI = '🇰'.freeze
 BITDEFENDER_EMOJI = '🇧'.freeze
 AVAST_EMOJI = '🅰'.freeze
@@ -33,17 +36,35 @@ NORTON_EMOJI = '🇳'.freeze
 MCAFEE_EMOJI = 'M'.freeze
 TRENDMICRO_EMOJI = '🇹'.freeze
 MSDEFENDER_EMOJI = '🇩'.freeze
-USERCHROME_EMJOI = '🛠'.freeze
+USERCHROME_EMOJI = '🛠'.freeze
 
-def get_userchrome_emoji(content, logger)
-  case content
-  when /(userchrome|usercontent)/i
-    "#{USERCHROME_EMJOI} #{Regexp.last_match(1)}"
-  else
-    UNKNOWN_EMOJI
-  end
+USERCHROME_EMOJI_ARRAY = [
+  { regex: /(userchrome|usercontent)/i, emoji: USERCHROME_EMOJI }
+].freeze
+
+OS_EMOJI_ARRAY = [
+  {
+    regex: /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|\
+    snow leopard|leopard|jaguar|monterey|mavericks|sonoma|\
+    sierra|el capitan|mojave|catalina|big sur|yosemite)/i,
+    emoji: MACOS_EMOJI
+  },
+  {
+    regex: /(linux|ubuntu|redhat|debian|bsd)/i,
+    emoji: LINUX_EMOJI
+  },
+  { regex: /(windows-7|windows-8|windows-10|windows-11|windows 10|\
+    win 10|windows 11|win 11|windows 7|win 7|windows 8|win 8|\
+    win7|win10|win8|win11)/i,
+    emoji: WINDOWS_EMOJI }
+].freeze
+
+def get_emojis_from_regex(emoji_regex, content, _logger)
+  emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
+  { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
 end
-def get_antivirus_emoji(content, logger)
+
+def get_antivirus_emoji(content, _logger)
   case content
   when /(kaspersky)/i
     "#{KASPERSKY_EMOJI} #{Regexp.last_match(1)}"
@@ -78,9 +99,11 @@ def get_antivirus_emoji(content, logger)
   end
 end
 
-def get_os_emoji(content, logger)
+def get_os_emoji(content, _logger)
   case content
-  when /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|snow leopard|leopard|jaguar|monterey|mavericks|sonoma|sierra|el capitan|mojave|catalina|big sur|yosemite)/i
+  when /(mac-os|os-x|osx|macos|ventura|macos|mac os|panther|\
+    snow leopard|leopard|jaguar|monterey|mavericks|sonoma|\
+    sierra|el capitan|mojave|catalina|big sur|yosemite)/i
     "#{MACOS_EMOJI} #{Regexp.last_match(1)}"
   when /(linux|ubuntu|redhat|debian|bsd)/i
     "#{LINUX_EMOJI} #{Regexp.last_match(1)}"
@@ -93,7 +116,7 @@ def get_os_emoji(content, logger)
   end
 end
 
-def get_email_emoji(content, logger)
+def get_email_emoji(content, _logger)
   case content
   when /(gmail|google mail|googlemail)/i
     "#{GMAIL_EMOJI} #{Regexp.last_match(1)}"
@@ -108,6 +131,8 @@ def get_email_emoji(content, logger)
     "#{PROTONMAIL_EMOJI} #{Regexp.last_match(1)}"
   when /(fastmail|fastmail.fm)/i
     "#{FASTMAIL_EMOJI} #{Regexp.last_match(1)}"
+  when /(yahoo)/i
+    "#{YAHOOEMAIL_EMOJI} #{Regexp.last_match(1)}"
   else
     UNKNOWN_EMOJI
   end
@@ -130,14 +155,22 @@ all_questions.each do |q|
   content += " #{q['tags']}"
   id = q['id']
   logger.debug "id: #{id}"
-  os_emoji = get_os_emoji(content, logger)
+  os_emoji_content = get_emojis_from_regex(
+    OS_EMOJI_ARRAY, content, logger
+  )
+  os_emoji = "#{os_emoji_content[:emoji]} \
+  #{os_emoji_content[:matching_text]}"
   email_emoji = get_email_emoji(content, logger)
   av_emoji = get_antivirus_emoji(content, logger)
-  userchrome_emoji = get_userchrome_emoji(content, logger)
+  # userchrome_emoji = get_userchrome_emoji(content, logger)
+  userchrome_emoji_content = get_emojis_from_regex(
+    USERCHROME_EMOJI_ARRAY, content, logger
+  )
+  userchrome_emoji = "#{userchrome_emoji_content[:emoji]} #{userchrome_emoji_content[:matching_text]}"
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(\
     "pango:<span font='Noto Color Emoji'>\
-  <span foreground='deeppink' letter_spacing='1' stretch='ultracondensed' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>\r\
+  <span foreground='deeppink' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>\r\
   <b>OS:</b>#{os_emoji}\r\
   <span foreground='darkblue'><b>email:</b>#{email_emoji}</span>\r\
   <span foreground='darkred'><b>Antivirus:</b>#{av_emoji}</span>\r\
