@@ -23,7 +23,7 @@ end
 def format_emoji_content(content, color, label)
   str = "\r<span foreground='#{color}' font='Latin Modern Roman Demi'><b>#{label}:</b>"
   str += "</span>#{content[:emoji]}"
-  str += "<span font='Latin Modern Roman Demi'>#{content[:matching_text]}</span>"
+  str + "<span font='Latin Modern Roman Demi'>#{content[:matching_text]}</span>"
 end
 
 if ARGV.length < 2
