@@ -21,8 +21,26 @@ NORTON_EMOJI = '🇳'.freeze
 TRENDMICRO_EMOJI = '🇹'.freeze
 MSDEFENDER_EMOJI = '🇩'.freeze
 SOPHOS_EMOJI = '🇸'.freeze
-USERCHROME_EMOJI = '🛠'.freeze
+USERCHROME_EMOJI = '🪛'.freeze
+NEWSFEEDS_EMOJI = '📰'.freeze
+CONTACTS_EMOJI = '📕'.freeze
+TIPS_EMOJI = '💡'.freeze
+EMAILS_EMOJI = '💌'.freeze
+# Topics in the AAQ:
+OTHER_EMOJI = '👽'.freeze # other in AAQ
+FIX_PROBLEMS_EMOJI = '🚧'.freeze # fix-problems
+CALENDAR_EMOJI = '📅'.freeze # calendar
+CUSTOMIZE_EMOJI = '🔩'.freeze # customize
+DOWNLOAD_AND_INSTALL_EMOJI = '🛠'.freeze # download-and-install
+PRIVACY_AND_SECURITY_EMOJI = '🔏'.freeze # privacy-and-security
 
+TOPICS_EMOJI_ARRAY = [
+  { regex: /(fix-problems)/i, emoji: FIX_PROBLEMS_EMOJI },
+  { regex: /(calendar)/i, emoji: CALENDAR_EMOJI },
+  { regex: /(download-and-install)/i, emoji: DOWNLOAD_AND_INSTALL_EMOJI },
+  { regex: /(privacy-and-security)/i, emoji: PRIVACY_AND_SECURITY_EMOJI },
+  { regex: /(other)/i, emoji: OTHER_EMOJI }
+]
 USERCHROME_EMOJI_ARRAY = [
   { regex: /(userchrome|usercontent)/i, emoji: USERCHROME_EMOJI }
 ].freeze
@@ -90,7 +108,7 @@ EMAIL_EMOJI_ARRAY = [
     emoji: MICROSOFT_EMAIL_EMOJI },
   { regex: /(protonmail|proton.me)/i,
     emoji: PROTONMAIL_EMOJI },
-  { regex: /(fastmail|fastmail.fm)/i,
+  { regex: /(fastmail.fm|fastmail)/i,
     emoji: FASTMAIL_EMOJI },
   { regex: /(yahoo)/i,
     emoji: YAHOOEMAIL_EMOJI }

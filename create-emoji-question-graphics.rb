@@ -24,12 +24,13 @@ def append_image(image_to_be_appended, image, vertical_or_horizontal)
   appended_images.write(image)
 end
 
-def get_emojis_from_regex(emoji_regex, content, _logger)
+def get_emojis_from_regex(emoji_regex, content, logger)
   emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
   { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
 end
 
-def format_emoji_content(content, color, label)
+def format_emoji_content(content, color, label, logger)
+  logger.debug "matching_text: #{content[:matching_text]}"
   str = "\r<span foreground='#{color}' font='Latin Modern Roman Demi'><b>#{label}:</b>"
   str += "</span>#{content[:emoji]}"
   str + "<span font='Latin Modern Roman Demi'>#{content[:matching_text]}</span>"
@@ -57,13 +58,15 @@ all_questions.each do |q|
   os_emoji_content = get_emojis_from_regex(OS_EMOJI_ARRAY, content, logger)
   pango_str = "pango:<span font='Noto Color Emoji'>"
   pango_str += "<span foreground='deeppink' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>"
-  pango_str += format_emoji_content(os_emoji_content, 'black', 'OS')
+  pango_str += format_emoji_content(os_emoji_content, 'black', 'OS', logger)
+  topics_emoji_content = get_emojis_from_regex(TOPICS_EMOJI_ARRAY, q['tags'], logger)
+  pango_str += format_emoji_content(topics_emoji_content, 'purple', 'Topic', logger)
   email_emoji_content = get_emojis_from_regex(EMAIL_EMOJI_ARRAY, content, logger)
-  pango_str += format_emoji_content(email_emoji_content, 'darkblue', 'Email')
+  pango_str += format_emoji_content(email_emoji_content, 'darkblue', 'Email', logger)
   av_emoji_content = get_emojis_from_regex(ANTIVIRUS_EMOJI_ARRAY, content, logger)
-  pango_str += format_emoji_content(av_emoji_content, 'darkred', 'AV')
+  pango_str += format_emoji_content(av_emoji_content, 'darkred', 'AV', logger)
   userchrome_emoji_content = get_emojis_from_regex(USERCHROME_EMOJI_ARRAY, content, logger)
-  pango_str += format_emoji_content(userchrome_emoji_content, 'darkgreen', 'userChrome')
+  pango_str += format_emoji_content(userchrome_emoji_content, 'darkgreen', 'userChrome', logger)
   pango_str += '</span>'
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(pango_str).first
