@@ -49,7 +49,7 @@ fn_str += '-%<width>4.4dx%<height>4.4d.png'
 current_hour = 30
 daily_image = false
 hourly_image = false
-HOURLY_STR = "hourly-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d-%<hh>2.2d.png".freeze
+HOURLY_STR = 'hourly-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d-%<hh>2.2d.png'.freeze
 all_questions.each do |q|
   content = "#{q['title']} #{q['content']}"
   question_creator = q['creator']
@@ -68,7 +68,9 @@ all_questions.each do |q|
   day = created.day
 
   os_emoji_content = get_emojis_from_regex(OS_EMOJI_ARRAY, content, logger)
-  created_str = "➖➖<span font='Latin Modern Roman Demi'><b>#{sprintf("%2.2d:%2.2d", hour, min)}</b></span>➖➖"
+  created_str = "➖➖<span font='Latin Modern Roman Demi'><b>"
+  created_str += format('%<hh>2.2d:%<min>2.2d', hh: hour, min: min)
+  created_str += '</b></span>➖➖'
   pango_str = "pango:<span font='Noto Color Emoji'>#{created_str}\r"
   pango_str += "<span foreground='deeppink' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>"
   pango_str += format_emoji_content(os_emoji_content, 'black', 'OS', logger)
