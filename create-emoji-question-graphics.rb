@@ -59,8 +59,17 @@ all_questions.each do |q|
   content += " #{q['tags']}"
   id = q['id']
   logger.debug "id: #{id}"
+  created = Time.parse(q['created']).utc
+  hour = created.hour
+  min = created.min
+  current_hour = hour if current_hour.nil?
+  year = created.year
+  month = created.month
+  day = created.day
+
   os_emoji_content = get_emojis_from_regex(OS_EMOJI_ARRAY, content, logger)
-  pango_str = "pango:<span font='Noto Color Emoji'>"
+  created_str = "➖➖<span font='Latin Modern Roman Demi'><b>#{sprintf("%2.2d:%2.2d", hour, min)}</b></span>➖➖"
+  pango_str = "pango:<span font='Noto Color Emoji'>#{created_str}\r"
   pango_str += "<span foreground='deeppink' font='Latin Modern Roman Demi'><b>id:</b>#{id}</span>"
   pango_str += format_emoji_content(os_emoji_content, 'black', 'OS', logger)
   topics_emoji_content = get_emojis_from_regex(TOPICS_EMOJI_ARRAY, q['tags'], logger)
@@ -71,18 +80,12 @@ all_questions.each do |q|
   pango_str += format_emoji_content(av_emoji_content, 'darkred', 'AV', logger)
   userchrome_emoji_content = get_emojis_from_regex(USERCHROME_EMOJI_ARRAY, content, logger)
   pango_str += format_emoji_content(userchrome_emoji_content, 'darkgreen', 'userChrome', logger)
-  pango_str += '</span>'
-  created = Time.parse(q['created']).utc
+  pango_str += '\r➖➖➖➖➖➖</span>'
   image = Magick::Image.read(pango_str).first
-  hour = created.hour
-  current_hour = hour if current_hour.nil?
-  year = created.year
-  month = created.month
-  day = created.day
   filename = format(
     fn_str,
     id: id, yyyy: year, mm: month, dd: day,
-    hh: hour, min: created.min, ss: created.sec,
+    hh: hour, min: min, ss: created.sec,
     width: image.columns,
     height: image.rows
   )
