@@ -46,11 +46,14 @@ all_answers = CSV.read(ARGV[1], headers: true)
 fn_str = 'tb-question-emoji-%<id>s-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d'
 fn_str += '-%<hh>2.2d-%<min>2.2d-%<ss>2.2d'
 fn_str += '-%<width>4.4dx%<height>4.4d.png'
-current_hour = 30
-daily_image = false
-hourly_image = false
+current_hour = 42 # bogus hour :-)
+current_day = 42 # bogus day :-)
 HOURLY_STR = 'hourly-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d-%<hh>2.2d.png'.freeze
-all_questions.each do |q|
+DAILY_STR = 'daily-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d.png'.freeze
+
+previous_hourly_filename = ''
+previous_daily_filename = ''
+all_questions.each_with_index do |q, index|
   content = "#{q['title']} #{q['content']}"
   question_creator = q['creator']
   all_answers.each do |a|
@@ -94,23 +97,38 @@ all_questions.each do |q|
   hourly_filename = format(
     HOURLY_STR, yyyy: year, mm: month, dd: day, hh: hour
   )
+  daily_filename = format(
+    DAILY_STR, yyyy: year, mm: month, dd: day
+  )
   image.write(filename)
   logger.debug "width: #{image.columns}"
   logger.debug "height: #{image.rows}"
   logger.debug "filename: #{filename}"
   logger.debug "hourly_filename: #{hourly_filename}"
-
+  logger.debug "current_day: #{current_day}"
   # FIXME: Assume question ids are ascending and assume ids are ascending by time
   # append image to hourly image if it exists else create hourly image
-  if hour == current_hour
+  if File.exist?(hourly_filename)
     append_image(filename, hourly_filename, VERTICAL)
-    exit
   else
-    logger.debug 'Copying filename to hourly_filename'
     FileUtils.copy_file(filename, hourly_filename)
-    current_hour = hour
   end
-  # If daily image isn't new, append hourly image to previous hourly images OR
-  # once a new day is reached or we reach end of questions,
-  # create daily for previous day from previous day's hourly image.
+  if index == 0
+    current_hour = hour
+    current_day = day
+    previous_hourly_filename = hourly_filename
+    previous_daily_filename = daily_filename
+    next
+  end
+  if hour != current_hour || day != current_day
+    if File.exist?(previous_daily_filename)
+      append_image(previous_hourly_filename, previous_daily_filename, HORIZONTAL)
+    else
+      FileUtils.copy_file(previous_hourly_filename, previous_daily_filename)
+    end
+    current_hour = hour
+    current_day = day
+    previous_hourly_filename = hourly_filename
+    previous_daily_filename = daily_filename
+  end
 end
