@@ -24,6 +24,11 @@ def append_image(image_to_be_appended, image, vertical_or_horizontal)
   appended_images.write(image)
 end
 
+def append_image_reverse(image_to_be_appended, image, vertical_or_horizontal)
+  image_list = Magick::ImageList.new(image, image_to_be_appended)
+  appended_images = image_list.append(vertical_or_horizontal)
+  appended_images.write(image)
+end
 def get_emojis_from_regex(emoji_regex, content, _logger)
   emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
   { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
@@ -122,7 +127,7 @@ all_questions.each_with_index do |q, index|
   end
   if hour != current_hour || day != current_day
     if File.exist?(previous_daily_filename)
-      append_image(previous_hourly_filename, previous_daily_filename, HORIZONTAL)
+      append_image_reverse(previous_hourly_filename, previous_daily_filename, HORIZONTAL)
     else
       FileUtils.copy_file(previous_hourly_filename, previous_daily_filename)
     end
