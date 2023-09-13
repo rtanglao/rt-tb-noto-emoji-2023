@@ -3,10 +3,11 @@ LINUX_EMOJI = '🐧'.freeze
 WINDOWS_EMOJI = '🪟'.freeze
 UNKNOWN_EMOJI = '❓'.freeze
 GMAIL_EMOJI = '📮'.freeze
-MICROSOFT_EMAIL_EMOJI = '📯'.freeze
+MICROSOFT_EMAIL_EMOJI = '💌'.freeze
 PROTONMAIL_EMOJI = '📨'.freeze
 FASTMAIL_EMOJI = '📧'.freeze
 YAHOOEMAIL_EMOJI = '🇾'.freeze
+MAILFENCE_EMOJI = '📯'.freeze
 KASPERSKY_EMOJI = '🇰'.freeze
 BITDEFENDER_EMOJI = '🇧'.freeze
 AVAST_EMOJI = '🅰'.freeze
@@ -22,10 +23,6 @@ TRENDMICRO_EMOJI = '🇹'.freeze
 MSDEFENDER_EMOJI = '🇩'.freeze
 SOPHOS_EMOJI = '🇸'.freeze
 USERCHROME_EMOJI = '🪛'.freeze
-NEWSFEEDS_EMOJI = '📰'.freeze
-CONTACTS_EMOJI = '📕'.freeze
-TIPS_EMOJI = '💡'.freeze
-EMAILS_EMOJI = '💌'.freeze
 # Topics in the AAQ:
 OTHER_EMOJI = '👽'.freeze # other in AAQ
 FIX_PROBLEMS_EMOJI = '🚧'.freeze # fix-problems
@@ -106,10 +103,8 @@ EMAIL_EMOJI_ARRAY = [
     microsoft exchange|microsoftexchange|\
     spectrum|time warner|roadrunner)/i,
     emoji: MICROSOFT_EMAIL_EMOJI },
-  { regex: /(protonmail|proton.me)/i,
-    emoji: PROTONMAIL_EMOJI },
-  { regex: /(fastmail.fm|fastmail)/i,
-    emoji: FASTMAIL_EMOJI },
-  { regex: /(yahoo)/i,
-    emoji: YAHOOEMAIL_EMOJI }
+  { regex: /(protonmail|proton\.me|pm\.me)/i, emoji: PROTONMAIL_EMOJI },
+  { regex: /(fastmail.fm|fastmail)/i, emoji: FASTMAIL_EMOJI },
+  { regex: /(yahoo)/i, emoji: YAHOOEMAIL_EMOJI },
+  { regex: /(mailfence)/i, emoji: MAILFENCE_EMOJI }
 ].freeze

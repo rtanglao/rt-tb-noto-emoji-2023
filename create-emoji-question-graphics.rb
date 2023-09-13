@@ -24,7 +24,7 @@ def append_image(image_to_be_appended, image, vertical_or_horizontal)
   appended_images.write(image)
 end
 
-def get_emojis_from_regex(emoji_regex, content, logger)
+def get_emojis_from_regex(emoji_regex, content, _logger)
   emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
   { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
 end
@@ -46,6 +46,10 @@ all_answers = CSV.read(ARGV[1], headers: true)
 fn_str = 'tb-question-emoji-%<id>s-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d'
 fn_str += '-%<hh>2.2d-%<min>2.2d-%<ss>2.2d'
 fn_str += '-%<width>4.4dx%<height>4.4d.png'
+current_hour = 30
+daily_image = false
+hourly_image = false
+HOURLY_STR = "hourly-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d-%<hh>2.2d.png".freeze
 all_questions.each do |q|
   content = "#{q['title']} #{q['content']}"
   question_creator = q['creator']
@@ -70,20 +74,38 @@ all_questions.each do |q|
   pango_str += '</span>'
   created = Time.parse(q['created']).utc
   image = Magick::Image.read(pango_str).first
+  hour = created.hour
+  current_hour = hour if current_hour.nil?
+  year = created.year
+  month = created.month
+  day = created.day
   filename = format(
     fn_str,
-    id: id, yyyy: created.year, mm: created.month, dd: created.day,
-    hh: created.hour, min: created.min, ss: created.sec,
+    id: id, yyyy: year, mm: month, dd: day,
+    hh: hour, min: created.min, ss: created.sec,
     width: image.columns,
     height: image.rows
+  )
+  hourly_filename = format(
+    HOURLY_STR, yyyy: year, mm: month, dd: day, hh: hour
   )
   image.write(filename)
   logger.debug "width: #{image.columns}"
   logger.debug "height: #{image.rows}"
   logger.debug "filename: #{filename}"
+  logger.debug "hourly_filename: #{hourly_filename}"
+
   # FIXME: Assume question ids are ascending and assume ids are ascending by time
   # append image to hourly image if it exists else create hourly image
+  if hour == current_hour
+    append_image(filename, hourly_filename, VERTICAL)
+    exit
+  else
+    logger.debug 'Copying filename to hourly_filename'
+    FileUtils.copy_file(filename, hourly_filename)
+    current_hour = hour
+  end
   # If daily image isn't new, append hourly image to previous hourly images OR
-  # once a new day is reached or we reach end of questions, 
+  # once a new day is reached or we reach end of questions,
   # create daily for previous day from previous day's hourly image.
 end
