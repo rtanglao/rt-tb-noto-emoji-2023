@@ -29,6 +29,7 @@ def append_image_reverse(image_to_be_appended, image, vertical_or_horizontal)
   appended_images = image_list.append(vertical_or_horizontal)
   appended_images.write(image)
 end
+
 def get_emojis_from_regex(emoji_regex, content, _logger)
   emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
   { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
@@ -53,10 +54,13 @@ fn_str += '-%<hh>2.2d-%<min>2.2d-%<ss>2.2d'
 fn_str += '-%<width>4.4dx%<height>4.4d.png'
 
 HOURLY_STR = 'hourly-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d-%<hh>2.2d.png'.freeze
-DAILY_STR = 'daily-tb-emoji-%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d.png'.freeze
-HOURID_STR = '%<yyyy>4.4d-%<mm>2.2d-%<dd>2.2d-%<hh>2.2d'.freeze
-hours = []
-all_questions.each_with_index do |q|
+HOURID_STR = '%<yyyy>4.4d%<mm>2.2d%<dd>2.2d%<hh>2.2d'.freeze
+DAY_STR = '%<yyyy>4.4d%<mm>2.2d%<dd>2.2d%'.freeze
+
+hourly_images = []
+daily_images = []
+
+all_questions.each do |q|
   content = "#{q['title']} #{q['content']}"
   question_creator = q['creator']
   all_answers.each do |a|
@@ -100,9 +104,6 @@ all_questions.each_with_index do |q|
   hourly_filename = format(
     HOURLY_STR, yyyy: year, mm: month, dd: day, hh: hour
   )
-  daily_filename = format(
-    DAILY_STR, yyyy: year, mm: month, dd: day
-  )
   image.write(filename)
   logger.debug "width: #{image.columns}"
   logger.debug "height: #{image.rows}"
@@ -111,10 +112,28 @@ all_questions.each_with_index do |q|
   # FIXME: Assume question ids are ascending and assume ids are ascending by time
   # append image to hourly image if it exists else create hourly image
   hour_id = format(HOURID_STR, yyyy: year, mm: month, dd: day, hh: hour)
-  if hours.index(hour_id)
+  if hourly_images.detect { |hi| hi[:hour_id] == hour_id }
     append_image(filename, hourly_filename, VERTICAL)
   else
     FileUtils.copy_file(filename, hourly_filename)
-    hours.push(hour_id)
+    hourly_images.push(
+      { hour_id: hour_id, width: image.columns, height: image.rows, filename: hourly_filename }
+    )
+  end
+end
+
+DAILY_STR = 'daily-tb-emoji-%<yyyymmdd>s.png'.freeze
+
+hourly_images.each do |img|
+  day_id = img[:hour_id][0...-2]
+  daily_filename = format(DAILY_STR, yyyymmdd: day_id)
+  hourly_filename = img[:filename]
+  if daily_images.detect { |di| di[:day_id] == day_id }
+    append_image_reverse(hourly_filename, daily_filename, HORIZONTAL)
+  else
+    FileUtils.copy_file(hourly_filename, daily_filename)
+    daily_images.push(
+      { day_id: day_id } # width: image.columns, height: image.rows, filename: #hourly_filename }
+    )
   end
 end
