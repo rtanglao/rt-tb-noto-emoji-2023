@@ -36,6 +36,7 @@ TOPICS_EMOJI_ARRAY = [
   { regex: /(calendar)/i, emoji: CALENDAR_EMOJI },
   { regex: /(download-and-install)/i, emoji: DOWNLOAD_AND_INSTALL_EMOJI },
   { regex: /(privacy-and-security)/i, emoji: PRIVACY_AND_SECURITY_EMOJI },
+  { regex: /(customize)/i, emoji: CUSTOMIZE_EMOJI },
   { regex: /(other)/i, emoji: OTHER_EMOJI }
 ]
 USERCHROME_EMOJI_ARRAY = [

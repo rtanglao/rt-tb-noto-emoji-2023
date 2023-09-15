@@ -30,6 +30,16 @@ def append_image_reverse(image_to_be_appended, image, vertical_or_horizontal)
   appended_images.write(image)
 end
 
+def montage_images_horizontally(image_to_be_appended, image)
+  image_list = Magick::ImageList.new(image, image_to_be_appended)
+  montaged_images = image_list.montage do |i|
+    i.geometry = '+0+0'
+    i.gravity = Magick::SouthGravity
+    i.tile = 'x1' # Geometry.new(nil, 1, nil, nil, nil)
+  end
+  montaged_images.write(image)
+end
+
 def get_emojis_from_regex(emoji_regex, content, _logger)
   emoji_regex.find_yield({ emoji: UNKNOWN_EMOJI, matching_text: nil }) \
   { |er| { emoji: er[:emoji], matching_text: Regexp.last_match(1) } if content =~ er[:regex] }
@@ -129,7 +139,8 @@ hourly_images.each do |img|
   daily_filename = format(DAILY_STR, yyyymmdd: day_id)
   hourly_filename = img[:filename]
   if daily_images.detect { |di| di[:day_id] == day_id }
-    append_image_reverse(hourly_filename, daily_filename, HORIZONTAL)
+    #append_image_reverse(hourly_filename, daily_filename, HORIZONTAL)
+    montage_images_horizontally(hourly_filename, daily_filename )
   else
     FileUtils.copy_file(hourly_filename, daily_filename)
     daily_images.push(
