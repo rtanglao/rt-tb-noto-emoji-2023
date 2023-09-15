@@ -11,7 +11,7 @@ require 'rmagick'
 require 'pry'
 require 'facets/enumerable/find_yield'
 require_relative 'regexes'
-
+require 'mini_magick'
 logger = Logger.new($stderr)
 logger.level = Logger::DEBUG
 
@@ -30,14 +30,29 @@ def append_image_reverse(image_to_be_appended, image, vertical_or_horizontal)
   appended_images.write(image)
 end
 
+# if RMagick supported a smush option then it would work but it doesn't
+# Therefore the RMagick version is commented out
+#  def montage_images_horizontally(image_to_be_appended, image)
+#   image_list = Magick::ImageList.new(image, image_to_be_appended)
+#   montaged_images = image_list.montage do |i|
+#     i.geometry = '+0+0'
+#     i.gravity = Magick::SouthGravity
+#     i.tile = 'x1' # Geometry.new(nil, 1, nil, nil, nil)
+#   end
+#   montaged_images.write(image)
+# end
+
 def montage_images_horizontally(image_to_be_appended, image)
-  image_list = Magick::ImageList.new(image, image_to_be_appended)
-  montaged_images = image_list.montage do |i|
-    i.geometry = '+0+0'
-    i.gravity = Magick::SouthGravity
-    i.tile = 'x1' # Geometry.new(nil, 1, nil, nil, nil)
+  # following is from:
+  # https://stackoverflow.com/questions/60357036/imagemagick-montage-how-to-align-images-to-bottom
+  # convert -background white -gravity south [abc].png +smush 10 result.png
+  MiniMagick::Tool::Magick.new do |m|
+    m.gravity('south')
+    m << image
+    m << image_to_be_appended
+    m.smush.+(10)
+    m << image
   end
-  montaged_images.write(image)
 end
 
 def get_emojis_from_regex(emoji_regex, content, _logger)
@@ -139,8 +154,8 @@ hourly_images.each do |img|
   daily_filename = format(DAILY_STR, yyyymmdd: day_id)
   hourly_filename = img[:filename]
   if daily_images.detect { |di| di[:day_id] == day_id }
-    #append_image_reverse(hourly_filename, daily_filename, HORIZONTAL)
-    montage_images_horizontally(hourly_filename, daily_filename )
+    # append_image_reverse(hourly_filename, daily_filename, HORIZONTAL)
+    montage_images_horizontally(hourly_filename, daily_filename)
   else
     FileUtils.copy_file(hourly_filename, daily_filename)
     daily_images.push(
