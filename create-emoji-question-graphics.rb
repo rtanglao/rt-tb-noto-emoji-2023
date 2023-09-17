@@ -24,11 +24,6 @@ def append_image(image_to_be_appended, image, vertical_or_horizontal)
   appended_images.write(image)
 end
 
-def append_image_reverse(image_to_be_appended, image, vertical_or_horizontal)
-  image_list = Magick::ImageList.new(image, image_to_be_appended)
-  appended_images = image_list.append(vertical_or_horizontal)
-  appended_images.write(image)
-end
 
 # if RMagick supported a smush option then it would work but it doesn't
 # Therefore the RMagick version is commented out
@@ -50,7 +45,20 @@ def montage_images_horizontally(image_to_be_appended, image)
     m.gravity('south')
     m << image
     m << image_to_be_appended
-    m.smush.+(0)
+    m.smush.+(10)
+    m << image
+  end
+end
+
+def montage_images_vertically(image_to_be_appended, image)
+  # following is from:
+  # https://stackoverflow.com/questions/60357036/imagemagick-montage-how-to-align-images-to-bottom
+  # convert -background white -gravity south [abc].png +smush 10 result.png
+  MiniMagick::Tool::Magick.new do |m|
+    m.gravity('south')
+    m << image_to_be_appended
+    m << image
+    m << '-smush' << '0' # stack vertically
     m << image
   end
 end
@@ -137,12 +145,24 @@ all_questions.each do |q|
   # append image to hourly image if it exists else create hourly image
   hour_id = format(HOURID_STR, yyyy: year, mm: month, dd: day, hh: hour)
   if hourly_images.detect { |hi| hi[:hour_id] == hour_id }
+    # weird horizontal offset so montage_image_vertically_is_commented out
+    #montage_images_vertically(filename, hourly_filename)
     append_image(filename, hourly_filename, VERTICAL)
   else
     FileUtils.copy_file(filename, hourly_filename)
     hourly_images.push(
       { hour_id: hour_id, width: image.columns, height: image.rows, filename: hourly_filename }
     )
+  end
+end
+# Add 2 pixel border
+hourly_images.each do |img|
+  filename = img[:filename]
+  MiniMagick::Tool::Magick.new do |m|
+    m << filename
+    m << '-bordercolor' << 'red'
+    m << '-border' << '2'
+    m << filename
   end
 end
 
