@@ -50,7 +50,7 @@ def montage_images_horizontally(image_to_be_appended, image)
     m.gravity('south')
     m << image
     m << image_to_be_appended
-    m.smush.+(10)
+    m.smush.+(0)
     m << image
   end
 end
@@ -97,7 +97,6 @@ all_questions.each do |q|
   created = Time.parse(q['created']).utc
   hour = created.hour
   min = created.min
-  current_hour = hour if current_hour.nil?
   year = created.year
   month = created.month
   day = created.day
