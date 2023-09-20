@@ -216,4 +216,45 @@ hourly_images.each do |hourly_img|
     )
   end
 end
-ap daily_images
+logger.debug daily_images.ai
+
+=begin 
+<img src="workplace.jpg" alt="Workplace" usemap="#workmap">
+
+<map name="workmap">
+  <area shape="rect" coords="34,44,270,350" alt="Computer" href="computer.htm">
+  <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.htm">
+  <area shape="circle" coords="337,300,44" alt="Coffee" href="coffee.htm">
+</map>
+=end
+
+previous_x_offset = 0
+
+daily_images.each_with_index do |d, daily_index|
+  day_filename = d[:day_filename]
+  day_id = d[:day_id]
+  day_width = d[:day_width]
+  day_height = d[:day_height]
+  html_str = "<img src='"
+  html_str += "#{day_filename}' alt='#{day_id}' usemap='##{day_id}'>\n"
+  html_str += "<map name='#{day_id}'>"
+  d[:hourly_images].each_with_index do |h, hourly_index|
+    previous_top_question_y = 0
+    previous_top_question_x = 0
+    h[:questions].each do |q|
+      question_height = q[:question_height]
+      top_question_y = day_height - question_height - previous_top_question_y
+      previous_top_question_y = question_height
+    end
+  end
+  logger.debug html_str
+  # We know the top of the day_image is #day_height e.g. 1000px, which is y = 0
+  # We know the height of the hour image
+  # We know the height of the question image
+  # Top left X is the same for all images in that hour: 0 if first hour else sum of previous hour's widths
+  # Bottom right X is the same for all images in that hour: hourly image width if the first hour else sum of previous widths + current width + 10pixel border * (hourly_image index)
+  # Top left Y is day height minus question height if first else day hight minus (sum of previous question heights + current question height)
+  # Bottom Right Y is 0 if first question else height - sum of previous height
+
+
+end
