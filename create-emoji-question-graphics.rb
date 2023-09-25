@@ -90,6 +90,7 @@ def montage_images_horizontally(image_to_be_appended, image)
     m << image
     m << image_to_be_appended
     m << '+smush' << '0' #'10'
+    m << '-geometry' << '+0+0'
     m << image
   end
 end
