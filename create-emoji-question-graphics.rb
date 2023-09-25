@@ -48,7 +48,7 @@ def calculate_img_map_coordinates(daily, logger)
       q_id = q[:question_id]
       top_left_x = hourly_index.zero? ? 0 : bottom_right_x_offset
       top_left_y = question_index.zero? ? day_height - q_height : day_height - total_q_height
-      bottom_right_x = hourly_index.zero? ? q_width : q_width + bottom_right_x_offset
+      bottom_right_x = hourly_index.zero? ? hourly_width : hourly_width + bottom_right_x_offset
       bottom_right_y = question_index.zero? ? day_height : day_height - (total_q_height - q_height)
       bottom_right_y_offset -= q_height
       logger.debug "top_left_x: #{top_left_x} top_left_y: #{top_left_y}"
