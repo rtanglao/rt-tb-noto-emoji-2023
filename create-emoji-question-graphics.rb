@@ -86,7 +86,7 @@ def montage_images_horizontally(image_to_be_appended, image)
   # https://stackoverflow.com/questions/60357036/imagemagick-montage-how-to-align-images-to-bottom
   # convert -background white -gravity south [abc].png +smush 10 result.png
   MiniMagick::Tool::Magick.new do |m|
-    m.gravity('south')
+    m << '-gravity' << 'South'
     m << image
     m << image_to_be_appended
     m << '+smush' << '0' #'10'
