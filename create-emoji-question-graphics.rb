@@ -58,7 +58,7 @@ def calculate_img_map_coordinates(daily, logger)
       html_str += "alt='question:#{q_id}' href='https://support.mozilla.org/questions/#{q_id}'>"
       logger.debug "html_str: #{html_str}"
     end
-    bottom_right_x_offset += hourly_width + (5 * (hourly_index + 1))
+    bottom_right_x_offset += hourly_width # + (5 * (hourly_index + 1))
   end
   html_str += "\n</map>"
 end
@@ -89,7 +89,7 @@ def montage_images_horizontally(image_to_be_appended, image)
     m.gravity('south')
     m << image
     m << image_to_be_appended
-    m << '+smush' << '10'
+    m << '+smush' << '0' #'10'
     m << image
   end
 end
