@@ -44,23 +44,21 @@ def calculate_img_map_coordinates(daily, logger)
       q_width = q[:question_width]
       q_height = q[:question_height]
       q_id = q[:question_id]
-      top_left_x = question_index.zero? ? 0 : bottom_right_x_offset
+      top_left_x = hourly_index.zero? ? 0 : bottom_right_x_offset
       bottom_right_x = hourly_index.zero? ? q_width : q_width + bottom_right_x_offset
       bottom_right_y = hourly_index.zero? ? day_height : day_height - bottom_right_y_offset
       bottom_right_y_offset -= q_height
-      top_left_y = question_index = 0 ? day_height - q_height : bottom_right_y_offset + q_height
+      top_left_y = question_index.zero? ? day_height - q_height : bottom_right_y_offset + q_height
       logger.debug "top_left_x: #{top_left_x} top_left_y: #{top_left_y}"
       logger.debug "bottom_right_x: #{bottom_right_x} bottom_right_y: #{bottom_right_y}"
       html_str += "<area shape='rect' "
       html_str += "coords='#{top_left_x},#{top_left_y},#{bottom_right_x},#{bottom_right_y}' "
       html_str += "alt='question:#{q_id}' href='https://support.mozilla.org/questions/#{q_id}'>"
-      html_str += "</map>"
       logger.debug "html_str: #{html_str}"
-
-      exit
     end
     bottom_right_x_offset += hourly_width + (2 * (hourly_index + 1))
   end
+  html_str += "</map>"
 end
 
 def append_image(image_to_be_appended, image, vertical_or_horizontal)
