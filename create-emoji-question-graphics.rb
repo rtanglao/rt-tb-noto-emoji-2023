@@ -58,7 +58,7 @@ def calculate_img_map_coordinates(daily, logger)
       html_str += "alt='question:#{q_id}' href='https://support.mozilla.org/questions/#{q_id}'>"
       logger.debug "html_str: #{html_str}"
     end
-    bottom_right_x_offset += hourly_width + (2 * (hourly_index + 1))
+    bottom_right_x_offset += hourly_width + (6 * (hourly_index + 1))
   end
   html_str += "\n</map>"
 end
