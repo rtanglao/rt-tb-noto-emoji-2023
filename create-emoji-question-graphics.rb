@@ -269,13 +269,5 @@ logger.debug daily_images.ai
 
 daily_images.each do |d|
   html_str = calculate_img_map_coordinates(d, logger)
-  # write html to a file
-  logger.debug html_str
+  File.open("tb-sumo-daily-aaq-image-map-#{d[:day_id]}.html", 'w') { |file| file.write(html_str) }
 end
-# We know the top of the day_image is #day_height e.g. 1000px, which is y = 0
-# We know the height of the hour image
-# We know the height of the question image
-# Top left X is the same for all images in that hour: 0 if first hour else sum of previous hour's widths
-# Bottom right X is the same for all images in that hour: hourly image width if the first hour else sum of previous widths + current width + 10pixel border * (hourly_image index)
-# Top left Y is day height minus question height if first else day hight minus (sum of previous question heights + current question height)
-# Bottom Right Y is 0 if first question else height - sum of previous height
