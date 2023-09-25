@@ -18,6 +18,51 @@ logger.level = Logger::DEBUG
 VERTICAL = true
 HORIZONTAL = false
 
+#
+# <img src="workplace.jpg" alt="Workplace" usemap="#workmap">
+#
+# <map name="workmap">
+#   <area shape="rect" coords="34,44,270,350" alt="Computer" href="computer.htm">
+#   <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.htm">
+#   <area shape="circle" coords="337,300,44" alt="Coffee" href="coffee.htm">
+# </map>
+
+def calculate_img_map_coordinates(daily, logger)
+  day_id = daily[:day_id]
+  day_filename = daily[:day_filename]
+  day_width = daily[:day_width]
+  day_height = daily[:day_height]
+  html_str = "<img src='"
+  html_str += "#{day_filename}' alt='#{day_id}' usemap='##{day_id}'>\n"
+  html_str += "<map name='#{day_id}'>"
+  bottom_right_x_offset = 0
+  daily[:hourly_images].each_with_index do |h, hourly_index|
+    logger.debug "hourly_image: #{h.ai}"
+    bottom_right_y_offset = day_height
+    hourly_width = h[:hourly_width]
+    h[:questions].each_with_index do |q, question_index|
+      q_width = q[:question_width]
+      q_height = q[:question_height]
+      q_id = q[:question_id]
+      top_left_x = question_index.zero? ? 0 : bottom_right_x_offset
+      bottom_right_x = hourly_index.zero? ? q_width : q_width + bottom_right_x_offset
+      bottom_right_y = hourly_index.zero? ? day_height : day_height - bottom_right_y_offset
+      bottom_right_y_offset -= q_height
+      top_left_y = question_index = 0 ? day_height - q_height : bottom_right_y_offset + q_height
+      logger.debug "top_left_x: #{top_left_x} top_left_y: #{top_left_y}"
+      logger.debug "bottom_right_x: #{bottom_right_x} bottom_right_y: #{bottom_right_y}"
+      html_str += "<area shape='rect' "
+      html_str += "coords='#{top_left_x},#{top_left_y},#{bottom_right_x},#{bottom_right_y}' "
+      html_str += "alt='question:#{q_id}' href='https://support.mozilla.org/questions/#{q_id}'>"
+      html_str += "</map>"
+      logger.debug "html_str: #{html_str}"
+
+      exit
+    end
+    bottom_right_x_offset += hourly_width + (2 * (hourly_index + 1))
+  end
+end
+
 def append_image(image_to_be_appended, image, vertical_or_horizontal)
   image_list = Magick::ImageList.new(image_to_be_appended, image)
   appended_images = image_list.append(vertical_or_horizontal)
@@ -44,7 +89,7 @@ def montage_images_horizontally(image_to_be_appended, image)
     m.gravity('south')
     m << image
     m << image_to_be_appended
-    m << '+smush' << '10' 
+    m << '+smush' << '10'
     m << image
   end
 end
@@ -218,43 +263,15 @@ hourly_images.each do |hourly_img|
 end
 logger.debug daily_images.ai
 
-=begin 
-<img src="workplace.jpg" alt="Workplace" usemap="#workmap">
-
-<map name="workmap">
-  <area shape="rect" coords="34,44,270,350" alt="Computer" href="computer.htm">
-  <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.htm">
-  <area shape="circle" coords="337,300,44" alt="Coffee" href="coffee.htm">
-</map>
-=end
-
-previous_x_offset = 0
-
-daily_images.each_with_index do |d, daily_index|
-  day_filename = d[:day_filename]
-  day_id = d[:day_id]
-  day_width = d[:day_width]
-  day_height = d[:day_height]
-  html_str = "<img src='"
-  html_str += "#{day_filename}' alt='#{day_id}' usemap='##{day_id}'>\n"
-  html_str += "<map name='#{day_id}'>"
-  d[:hourly_images].each_with_index do |h, hourly_index|
-    previous_top_question_y = 0
-    previous_top_question_x = 0
-    h[:questions].each do |q|
-      question_height = q[:question_height]
-      top_question_y = day_height - question_height - previous_top_question_y
-      previous_top_question_y = question_height
-    end
-  end
+daily_images.each do |d|
+  html_str = calculate_img_map_coordinates(d, logger)
+  # write html to a file
   logger.debug html_str
-  # We know the top of the day_image is #day_height e.g. 1000px, which is y = 0
-  # We know the height of the hour image
-  # We know the height of the question image
-  # Top left X is the same for all images in that hour: 0 if first hour else sum of previous hour's widths
-  # Bottom right X is the same for all images in that hour: hourly image width if the first hour else sum of previous widths + current width + 10pixel border * (hourly_image index)
-  # Top left Y is day height minus question height if first else day hight minus (sum of previous question heights + current question height)
-  # Bottom Right Y is 0 if first question else height - sum of previous height
-
-
 end
+# We know the top of the day_image is #day_height e.g. 1000px, which is y = 0
+# We know the height of the hour image
+# We know the height of the question image
+# Top left X is the same for all images in that hour: 0 if first hour else sum of previous hour's widths
+# Bottom right X is the same for all images in that hour: hourly image width if the first hour else sum of previous widths + current width + 10pixel border * (hourly_image index)
+# Top left Y is day height minus question height if first else day hight minus (sum of previous question heights + current question height)
+# Bottom Right Y is 0 if first question else height - sum of previous height
