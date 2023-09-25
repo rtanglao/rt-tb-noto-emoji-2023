@@ -58,7 +58,7 @@ def calculate_img_map_coordinates(daily, logger)
       html_str += "alt='question:#{q_id}' href='https://support.mozilla.org/questions/#{q_id}'>"
       logger.debug "html_str: #{html_str}"
     end
-    bottom_right_x_offset += hourly_width + (10 * (hourly_index + 1))
+    bottom_right_x_offset += hourly_width + (5 * (hourly_index + 1))
   end
   html_str += "\n</map>"
 end
@@ -225,13 +225,16 @@ all_questions.each do |q|
 end
 # Add 2 pixel red border
 hourly_images.each do |img|
-  filename = img[:hourly_filename]
+  hourly_filename = img[:hourly_filename]
   MiniMagick::Tool::Magick.new do |m|
-    m << filename
+    m << hourly_filename
     m << '-bordercolor' << 'red'
     m << '-border' << '2'
-    m << filename
+    m << hourly_filename
   end
+  image = Magick::ImageList.new(hourly_filename)
+  img[:hourly_width] = image.columns
+  img[:hourly_height] = image.rows
 end
 
 DAILY_STR = 'daily-tb-emoji-%<yyyymmdd>s.png'.freeze
