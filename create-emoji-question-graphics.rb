@@ -53,8 +53,8 @@ def calculate_img_map_coordinates(daily, logger)
       bottom_right_y_offset -= q_height
       logger.debug "top_left_x: #{top_left_x} top_left_y: #{top_left_y}"
       logger.debug "bottom_right_x: #{bottom_right_x} bottom_right_y: #{bottom_right_y}"
-      html_str += "\n<area shape='rect' "
-      html_str += "coords='#{top_left_x},#{top_left_y},#{bottom_right_x},#{bottom_right_y}' "
+      html_str += "\n<area shape='rect' title='#{q[:question_title]}' "
+      html_str += "\ncoords='#{top_left_x},#{top_left_y},#{bottom_right_x},#{bottom_right_y}' "
       html_str += "alt='question:#{q_id}' href='https://support.mozilla.org/questions/#{q_id}'>"
       logger.debug "html_str: #{html_str}"
     end
@@ -191,7 +191,8 @@ all_questions.each do |q|
     question_filename: question_filename,
     question_id: id,
     question_width: question_width,
-    question_height: question_height
+    question_height: question_height,
+    question_title: content[0..65]
   }
   # FIXME: Assume question ids are ascending and assume ids are ascending by time
   # append image to hourly image if it exists else create hourly image
