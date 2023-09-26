@@ -12,6 +12,8 @@ require 'pry'
 require 'facets/enumerable/find_yield'
 require_relative 'regexes'
 require 'mini_magick'
+require 'nokogiri'
+
 logger = Logger.new($stderr)
 logger.level = Logger::DEBUG
 
@@ -187,12 +189,13 @@ all_questions.each do |q|
   logger.debug "question_width: #{question_width}"
   logger.debug "question_height: #{question_height}"
   logger.debug "question_filename: #{question_filename}"
+  abbreviated_title = Nokogiri::HTML.parse(content).text.gsub(/['"]/, '')
   question_hash = {
     question_filename: question_filename,
     question_id: id,
     question_width: question_width,
     question_height: question_height,
-    question_title: content[0..65]
+    question_title: abbreviated_title[0..65]
   }
   # FIXME: Assume question ids are ascending and assume ids are ascending by time
   # append image to hourly image if it exists else create hourly image
